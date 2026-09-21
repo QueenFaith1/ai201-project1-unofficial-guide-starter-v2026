@@ -41,3 +41,25 @@ The library being open until 2am is a trap. It's a resource, not a schedule.
 **Overlap:** None. Each reply becomes its own separate chunk, so nothing repeats between them.
 
 When I ran the original chunker on my corpus, it printed a chunk that was only 2 characters long, basically a broken fragment with nothing useful in it. My corpus is made of threads where each post follows the same pattern: a thread title, then several replies marked like "--- reply 1 (14 votes) ---". Since that structure was already there in the text, I split at those reply markers instead of guessing at a character count. Each chunk keeps the thread title attached so it still makes sense on its own, without needing the other replies around it.
+
+**My relevance cutoff:** 0.6 — the default turned out to be right in the middle of a clean gap.
+
+| Question | In corpus? | Best distance |
+|---|---|---|
+| How hard is it to change majors in second year? | Yes | 0.208 |
+| What should students do if a teammate disappears? | Yes | 0.234 |
+| Is there an advising program for first-gen students? | Yes | 0.159 |
+| How many times can students change meal plan tier? | Yes | 0.234 |
+| Who do students speak with about roommate issues? | Yes | 0.291 |
+| What is the capital of Mongolia? | No | 0.893 |
+| How do I change oil in a diesel engine? | No | 0.896 |
+| Who won the 1994 World Cup? | No | 0.893 |
+| Recommended dosage of ibuprofen? | No | 0.807 |
+| How do I write a for loop in Rust? | No | 0.835 |
+
+**Question:** How many times can students change their meal plan tier and by when?
+
+**Answer:**
+Students can only change their meal plan tier once and only in the first ten days (thread_meal_plan_tier.txt).
+
+Source: thread_meal_plan_tier.txt
