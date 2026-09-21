@@ -25,7 +25,7 @@ contains the answer.
 **Why this target:**
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
-
+I picked 4 of 5 because my group project question ("what should students do if a teammate disappears") is fairly specific, and the answer word 'document' appears early in one particular reply rather than being repeated across the whole thread,  so I expect that question might be the hardest one for retrieval to nail."
 ---
 
 ## 2. Every answer names a source
@@ -35,7 +35,7 @@ Every answer the system produces names at least one source document.
 **Why this target:**
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
-
+I picked 5 of 5 because the system's code forces a source to be included with every answer. If no source is found, it returns an error instead of a made up answer. So this isn't about how hard the question is, it's about whether the code is doing its job every single time.
 ---
 
 ## 3. The relevance gate stops out-of-corpus questions
@@ -52,7 +52,7 @@ in at least 4 of 5 tries.
 **Why this target:**
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
-
+I picked 4 of 5 because the gate relies on a single distance cutoff (0.6), and any single number is a compromise. An out of corpus question that happens to share similar wording with something in my corpus could land close enough to the cutoff to slip through
 ---
 
 ## 4. Something about your chunks
@@ -69,10 +69,10 @@ in at least 4 of 5 tries.
        - "No chunk is shorter than 200 characters, since anything below that
           in my corpus turned out to be a heading with no content under it." -->
 
-
+At least 4 of 5 sampled chunks read as a complete thought, with no sentence cut off at either end.
 
 **Why this target:**
-
+I picked 4 of 5 because when I ran index, one chunk came back only 2 characters long, which told me my current chunking sometimes cuts a document in a way that leaves a fragment with no real content
 
 
 ---
@@ -86,11 +86,11 @@ in at least 4 of 5 tries.
      handles badly, about source attribution being correct rather than merely
      present — anything, as long as it names a number or an observable
      outcome. -->
-
+For at least 2 of 3 questions where my corpus contains disagreeing replies, the answer explains both sides of the trade-off (not just states one opinion as fact).
 
 
 **Why this target:**
-
+I picked 2 of 3 because my corpus is full of threads where people disagree (like the bike thread), and a system that flattens that disagreement into one confident answer would be misleading students rather than helping them.
 
 
 ---
