@@ -63,3 +63,13 @@ When I ran the original chunker on my corpus, it printed a chunk that was only 2
 Students can only change their meal plan tier once and only in the first ten days (thread_meal_plan_tier.txt).
 
 Source: thread_meal_plan_tier.txt
+
+## What This Does
+
+I picked the advice_threads corpus, made up of real style student discussion threads. My system answers questions students actually ask each other like changing majors, what to do when a group project teammate disappears, first-gen advising resources, meal plan tiers, and roommate conflicts. Basically everything needed to survive college. It retrieves the most relevant reply from a thread and answers using only that source, naming the file it came from.
+
+## How I Used AI
+
+1. I asked Claude to help me write a custom chunker for my advice_threads corpus, since the starter's fixed-size chunker was cutting threads into meaningless 800-character pieces. It suggested splitting on the "--- reply" markers instead. My first version lost the thread title on each chunk, so I had it add that back in so each chunk could stand alone without the surrounding context.
+
+2. I used Claude to pressure-test my acceptance criteria and test questions before committing to them. It pointed out that several of my original questions (like "are students aware of X") were opinion-based with no checkable right answer, so I rewrote them into specific factual questions with an exact word or phrase the correct answer had to contain.
