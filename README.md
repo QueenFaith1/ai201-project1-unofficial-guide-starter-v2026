@@ -137,3 +137,18 @@ Target: 4 of 5. Result was 15 of 15 sampled chunks read cleanly,there was no cut
 
 ### 5. Explains both sides of a disagreement (revised)
 Revised target: for the 1 question where my corpus has genuine disagreement, the answer explains both sides rather than stating one opinion as fact. Result: 3  out of 3 runs mentioned both the upside (time saved) and the downside(winter drivetrain damage / storage), sourced correctly, with no cache hits.**MET, with a caveat worth being honest about:** all three runs open with aconfident "Yes" and fold the disagreement in as a "but here's a downside,"rather than presenting it as two people actually disagreeing. Only run 3explicitly used the word "counterpoint" and named it as an opposing view.This is a real, repeatable pattern, not a fluke, and it's a softer version of exactly the flattening this criterion exists to catch. I'm calling it MET because the required information, both sides is present every time, but this is the one verdict where a stricter reader could reasonably disagree with me.
+
+## Diagnoses
+
+I didn't miss any of the  five criteria,  all five came back MET across threeruns each. Instead of diagnosing a failure, here's an honest check on
+whether my targets were actually hard enough to prove anything.
+
+**Where I think I set the bar too low: Criterion 5.**
+
+The criterion asks whether the system "explains both sides of the tradeoff." Technically, it did,  every one of the 3 runs mentioned both thetime-saved upside and the winter drivetrain downside. But the pattern was the same every time, the answer opens with a confident "Yes" and folds thedisagreement in almost as an afterthought, rather than presenting it as two people actually disagreeing. Only 1 of the 3 runs used language ("a counterpoint warns...") that named it as an actual clash of opinions. That means my criterion measured "is the information present" when what I actually cared about going back to my original reasoning for this
+criterion  was "does the system avoid flattening disagreement into one confident take." Those aren't the same thing, and my target let a partial flattening slide through as a pass.
+
+**What I'd tighten it to:**
+ Instead of "the answer explains both sides," something like "the answer explicitly frames the response as adisagreement (e.g. naming that people differ) rather than stating one  position and appending the other as a caveat." That's still observable.  You can point to the specific phrasing that would or wouldn't satisfy it  and it's a real bar instead of one my system could clear by accident.
+
+**Criteria 1–4 held up as genuinely meaningful, not just easy.** Their targets (4 of 5, 5 of 5) had real room to fail,  my out of scope distances sat in a clean gap rather than barely clearing the cutoff, and my sampled chunks all read cleanly rather than getting lucky on a small sample. I don't think those four were set artificially soft.
