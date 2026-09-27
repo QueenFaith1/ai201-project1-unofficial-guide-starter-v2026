@@ -145,7 +145,7 @@ whether my targets were actually hard enough to prove anything.
 
 **Where I think I set the bar too low: Criterion 5.**
 
-The criterion asks whether the system "explains both sides of the tradeoff." Technically, it did,  every one of the 3 runs mentioned both thetime-saved upside and the winter drivetrain downside. But the pattern was the same every time, the answer opens with a confident "Yes" and folds thedisagreement in almost as an afterthought, rather than presenting it as two people actually disagreeing. Only 1 of the 3 runs used language ("a counterpoint warns...") that named it as an actual clash of opinions. That means my criterion measured "is the information present" when what I actually cared about going back to my original reasoning for this
+The criterion asks whether the system "explains both sides of the tradeoff." Technically, it did,  every one of the 3 runs mentioned both thetime-saved upside and the winter drivetrain downside. But the pattern was the same every time, the answer opens with a confident "Yes" and folds thedisagreement in almost as an afterthought, rather than presenting it as two people actually disagreeing. Only 1 of the 3 runs used language ,"a counterpoint warns..." that named it as an actual clash of opinions. That means my criterion measured "is the information present" when what I actually cared about going back to my original reasoning for this
 criterion  was "does the system avoid flattening disagreement into one confident take." Those aren't the same thing, and my target let a partial flattening slide through as a pass.
 
 **What I'd tighten it to:**
@@ -192,3 +192,30 @@ Produced by `app.py::cmd_ask` → `generate.py::answer_from_chunks`, cache disab
 **Did it help? Yes, clearly.** This isn't a marginal shift the "yes, but" pattern I flagged in Milestone 3 is gone in all three runs, replaced by explicit disagreement language every time. The one trade off: answers got noticeably longer (avg. ~147 output tokens vs. ~85 before), since presenting two sides properly takes more words than picking one. For a system meant to give students a quick, trustworthy answer, that's a fair cost for not silently picking a side on something people genuinely disagree about.
 
 I didn't re-run criteria 1–4 against this change, since the edit only touches the system instruction used in generation, it doesn't touch loading, chunking, embedding, or retrieval, so those four are unaffected by construction, not by assumption.
+
+## What's Still Broken
+
+None of my five criteria are missed as of the improvement, but two things are genuinely still open, not fully verified, and worth being honest about rather than pretending the repo is airtight.
+
+1. I only retested criterion 5 after the prompt change, not criteria 1–3. `GROUNDING_INSTRUCTION` is global, it runs for every question, not just the bike one. I never re ran my other four test questions (majors, group project, first-gen, meal plan, roommate) through `run_eval.py` after adding the new disagreement rule. None of those questions have real disagreement in their retrieved chunks, so I'd expect the new rule to sit unused and do nothing, but I haven't actually confirmed that. It's possible the new instruction subtly changes phrasing or length even on questions where it shouldn't apply. I stopped here because I was confident in the reasoning, not because I checked it.
+
+1.What I'd do is run python run_eval.py --label after all 5 questions, 3 runs each and confirm criteria 1–3 still hold at their original numbers with the new prompt in place.
+
+2. Criterion 4's chunk audit only covered 15 of 75 chunks (20%). I never found the 2-character fragment again in either sample, which is encouraging, but 60 chunks are still unchecked. I can't honestly claim the fragment problem is fully solved, only that I didn't see it recur in what I looked at.
+
+What I'd do is  write a short script that flags any chunk under some minimum length (e.g. 20 characters) and run it against the full 75, instead of relying on a manual sample. I stopped at both of these because of time, not because I think they're unimportant. A full re-run and a length-check script are both quick, mechanical next steps, not open research problems.
+
+## What I'd Do Differently
+
+If I were writing my five criteria again knowing what I know now, I'd rewrite **criterion 5**. My original version, "the answer explains both
+sides of the trade-off," turned out to be satisfiable by a weak version of success, an answer that says "yes, but" and buries the disagreement as an aside technically explains both sides without actually treating them as a disagreement. I'd write it instead as something like: "the answer explicitly frames the response as a disagreement between people, not just a caveat, e.g. using language like people differ or naming one view as a counterpoint to another. That version can't be satisfied by accident the way my original one could.
+
+I wouldn't change criteria 1–4. Their targets had real room to fail, a 4-of-5 bar against retrieval that could plausibly miss, a cutoff that could plausibly let something through, and testing them didn't reveal anything that suggested they were secretly toothless.
+
+## How I Used AI (Unit 2)
+
+3. I used Claude throughout the testing process to help me verify results rigorously rather than take them at face value, for example, checking criterion 1 against the actual retrieved chunk text via `--show-prompt`  instead of trusting the model's paraphrased answer as a stand in for what was retrieved.
+
+4. When my three runs  of the criterion 5 question kept producing identical output, Claude helped me trace it back to `app.py ask` caching by default unlike `run_eval.py`, which meant my first two attempts weren't actually independent runs at all. That led to fixing the underlying bug, a leftover typo in `generate.py`'s `_cache_key()` function, before I could get valid before/after data.
+
+5. I asked Claude to pressure test my Milestone 3 diagnosis before writing it down permanently, and to help me connect the diagnosis directly to one specific, minimal fix one line added to the grounding prompt  rather than several changes at once.
