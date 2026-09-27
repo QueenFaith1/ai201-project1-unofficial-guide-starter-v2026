@@ -66,3 +66,30 @@ it was set against the corpora above at their shipped chunk settings, and
 changing the chunking moves the distances underneath it. Measuring it
 yourself is the milestone.
 
+## The Improvement
+
+**What I changed:** 
+I added one rule to `GROUNDING_INSTRUCTION` in `generate.py". If the documents disagree with each other, say so explicitly, don't present one side as the answer and bury the other as an afterthought."
+
+**Why:**
+ My Milestone 3 diagnosis found that criterion 5 technically passed, but every "before" answer opened with a confident "Yes" and folded the disagreement in as a caveat rather than presenting it as an actual split opinion. Only 1 of 3 runs even used a word like "counterpoint" to name the disagreement. The fix targets that specific pattern in generation and  not retrieval, which was already working fine.
+
+### Run Log — After
+
+Same question, same method: 3 runs, cache disabled (`$env:AI201_CACHE = "0"`), confirmed via "1 model calls this session" on each.
+
+| Run | Opens with | Uses "counterpoint" or equivalent attribution | Structure |
+|---|---|---|---|
+| 1 | "whether a bike is worth it depends on several factors" | Yes — "A counterpoint advises against it" | Bulleted, 4 points |
+| 2 | "whether a bike is worth it depends on seasons and storage" | Yes — "a counterpoint warns" | Bulleted, 3 points |
+| 3 | "opinions... are mixed" | Implied via "conversely" | Bulleted, 2 points |
+
+### Before vs. After
+
+| | Before | After |
+|---|---|---|
+| Opens with a flat "Yes" | 3 of 3 runs | 0 of 3 runs |
+| Explicitly names the opposing view as a "counterpoint" | 1 of 3 runs | 3 of 3 runs |
+| Presents sides as separate points, not one blended paragraph | 0 of 3 runs | 3 of 3 runs |
+
+Sample output, run 1, after:

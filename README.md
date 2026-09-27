@@ -152,3 +152,43 @@ criterion  was "does the system avoid flattening disagreement into one confident
  Instead of "the answer explains both sides," something like "the answer explicitly frames the response as adisagreement (e.g. naming that people differ) rather than stating one  position and appending the other as a caveat." That's still observable.  You can point to the specific phrasing that would or wouldn't satisfy it  and it's a real bar instead of one my system could clear by accident.
 
 **Criteria 1–4 held up as genuinely meaningful, not just easy.** Their targets (4 of 5, 5 of 5) had real room to fail,  my out of scope distances sat in a clean gap rather than barely clearing the cutoff, and my sampled chunks all read cleanly rather than getting lucky on a small sample. I don't think those four were set artificially soft.
+
+## The Improvement
+
+**What I changed:** 
+I added one rule to `GROUNDING_INSTRUCTION` in `generate.py". > If the documents disagree with each other, say so explicitly, don't present one side as the answer and bury the other as an afterthought."
+
+**Why:**
+ My Milestone 3 diagnosis found that criterion 5 technically passed, but every "before" answer opened with a confident "Yes" and folded the disagreement in as a caveat rather than presenting it as an actual split opinion. Only 1 of 3 runs even used a word like "counterpoint" to name the disagreement. The fix targets that specific pattern in generation and  not retrieval, which was already working fine.
+
+### Run Log — After
+
+Same question, same method: 3 runs, cache disabled (`$env:AI201_CACHE = "0"`), confirmed via "1 model calls this session" on each.
+
+| Run | Opens with | Uses "counterpoint" or equivalent attribution | Structure |
+|---|---|---|---|
+| 1 | "whether a bike is worth it depends on several factors" | Yes — "A counterpoint advises against it" | Bulleted, 4 points |
+| 2 | "whether a bike is worth it depends on seasons and storage" | Yes — "a counterpoint warns" | Bulleted, 3 points |
+| 3 | "opinions... are mixed" | Implied via "conversely" | Bulleted, 2 points |
+
+### Before vs. After
+
+| | Before | After |
+|---|---|---|
+| Opens with a flat "Yes" | 3 of 3 runs | 0 of 3 runs |
+| Explicitly names the opposing view as a "counterpoint" | 1 of 3 runs | 3 of 3 runs |
+| Presents sides as separate points, not one blended paragraph | 0 of 3 runs | 3 of 3 runs |
+
+Sample output, run 1, after:
+
+Based on the documents, whether a bike is worth it depends on several factors:
+
+One commenter says it is worth it because it cuts an 18-minute walk down  to about 6 minutes, though covered bike parking fills up by 9 am
+(thread_bike_commute.txt). Another commenter keeps a cheap $120 bike to use from September to November and walks the rest of the year (thread_bike_commute.txt).A counterpoint advises against it, stating they sold theirs because iceand salt between November and March destroy drivetrain in a single season
+(thread_bike_commute.txt). Another tip notes that free campus registration helped recover a stolen bike (thread_bike_commute.txt).
+
+Produced by `app.py::cmd_ask` → `generate.py::answer_from_chunks`, cache disabled.
+
+**Did it help? Yes, clearly.** This isn't a marginal shift the "yes, but" pattern I flagged in Milestone 3 is gone in all three runs, replaced by explicit disagreement language every time. The one trade off: answers got noticeably longer (avg. ~147 output tokens vs. ~85 before), since presenting two sides properly takes more words than picking one. For a system meant to give students a quick, trustworthy answer, that's a fair cost for not silently picking a side on something people genuinely disagree about.
+
+I didn't re-run criteria 1–4 against this change, since the edit only touches the system instruction used in generation, it doesn't touch loading, chunking, embedding, or retrieval, so those four are unaffected by construction, not by assumption.

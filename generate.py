@@ -28,6 +28,7 @@ times over.
 `run_eval.py` passes cache=False for you.
 """
 
+from ast import If
 import hashlib
 import json
 import os
@@ -55,7 +56,6 @@ class QuotaGuard(Exception):
 def _cache_key(prompt: str, system: str | None) -> str:
     blob = json.dumps([config.MODEL, system or "", prompt], sort_keys=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:32]
-
 
 def _cache_read(key: str) -> str | None:
     path = config.CACHE_DIR / f"{key}.json"
@@ -279,8 +279,8 @@ Rules:
 - Use only the information in the documents below. Do not use anything you know from elsewhere.
 - If the documents don't cover the question, say you don't have enough information. Do not guess.
 - Name the document your answer came from, using the filename given in each excerpt.
-- Be brief. Two or three sentences is usually enough."""
-
+- Be brief. Two or three sentences is usually enough.
+- If the documents disagree with each other, say so explicitly — don't present one side as the answer and bury the other as an afterthought."""
 
 def build_prompt(question: str, results) -> str:
     """
