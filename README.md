@@ -219,3 +219,15 @@ I wouldn't change criteria 1–4. Their targets had real room to fail, a 4-of-5 
 4. When my three runs  of the criterion 5 question kept producing identical output, Claude helped me trace it back to `app.py ask` caching by default unlike `run_eval.py`, which meant my first two attempts weren't actually independent runs at all. That led to fixing the underlying bug, a leftover typo in `generate.py`'s `_cache_key()` function, before I could get valid before/after data.
 
 5. I asked Claude to pressure test my Milestone 3 diagnosis before writing it down permanently, and to help me connect the diagnosis directly to one specific, minimal fix one line added to the grounding prompt  rather than several changes at once.
+
+## Capstone
+
+**What This Extends**
+
+Unofficial Guide (project 1). New: failure handling and a structured run log.
+
+**The Shape**
+
+I picked B, harden against failure. Right now, when the model call fails, the user sees a raw error from the provider and nothing gets saved. When I'm done, the user will see a short, clear message instead, and every run, including the ones that fail, will be saved to a structured log with what was asked, what happened, and how long it took.
+
+Out of scope: I'm not adding automatic retries, I'm not changing how answers are found or written, and I'm not hosting it online. It runs on my own computer.
