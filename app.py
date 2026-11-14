@@ -18,6 +18,7 @@ import sys
 import time
 
 import config
+import runlog
 
 
 def cmd_corpora(args):
@@ -263,20 +264,48 @@ def _ask_one(
         print(prompt)
         print("=" * 70)
 
-    outcome = ask_pipeline(
-        question,
-        corpus=corpus,
-        variant=variant,
-        top_k=top_k,
-        threshold=threshold,
-        on_gate=print_distances if show_distances else None,
-        on_prompt=print_prompt if show_prompt else None,
-    )
+    started = time.time()
+    try:
+        outcome = ask_pipeline(
+            question,
+            corpus=corpus,
+            variant=variant,
+            top_k=top_k,
+            threshold=threshold,
+            on_gate=print_distances if show_distances else None,
+            on_prompt=print_prompt if show_prompt else None,
+        )
+    except Exception as exc:  # noqa: BLE001 - the user gets a plain message
+        reason, message = runlog.friendly_error(exc)
+        runlog.log_run(
+            question,
+            "model_error",
+            time.time() - started,
+            reason=reason,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+        print(f"\n{message}\n")
+        return None
+
+    duration = time.time() - started
 
     if outcome["refused"]:
+        runlog.log_run(
+            question,
+            "refused",
+            duration,
+            best_distance=outcome["best_distance"],
+        )
         print(f"\n{gate.REFUSAL}\n")
         return gate.REFUSAL
 
+    runlog.log_run(
+        question,
+        "answered",
+        duration,
+        best_distance=outcome["best_distance"],
+        sources=outcome["sources"],
+    )
     print(f"\n{outcome['answer']}\n")
     print(f"Sources retrieved: {', '.join(outcome['sources'])}\n")
     return outcome["answer"]
