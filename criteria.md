@@ -88,11 +88,25 @@ I picked 4 of 5 because when I ran index, one chunk came back only 2 characters 
      outcome. -->
 For at least 2 of 3 questions where my corpus contains disagreeing replies, the answer explains both sides of the trade-off (not just states one opinion as fact).
 
-
 **Why this target:**
 I picked 2 of 3 because my corpus is full of threads where people disagree (like the bike thread), and a system that flattens that disagreement into one confident answer would be misleading students rather than helping them.
 
+I picked 2 of 3 because my corpus is full of threads where people disagree (like the bike thread), and a system that flattens that disagreement into one confident answer would be misleading students rather than helping them.
 
+> **Revised in unit 2:** For the 1 question where my corpus contains a thread
+> with clear, explicit disagreement (people directly contradicting each
+> other, not just adding separate tips), the answer explains both sides of
+> the trade-off rather than stating one opinion as fact.
+>
+> **Why revised:** When I went looking for the 3 disagreement questions this
+> criterion needed, I found only one thread in my corpus with genuine,
+> explicit disagreement — thread_bike_commute.txt, where one reply says a
+> bike is worth it and the next opens with "Counterpoint, I sold mine" and
+> argues the opposite. The rest of my threads are people adding different
+> useful tips, not contradicting each other. The criterion assumed disagreement
+> was common in my corpus; it isn't, so "2 of 3" had nothing real to measure
+> against. This isn't a case of missing my target — the target couldn't be
+> tested as written.
 ---
 
 <!-- ─────────────────────────────────────────────────────────────────────────
