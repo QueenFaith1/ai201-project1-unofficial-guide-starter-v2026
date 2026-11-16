@@ -193,6 +193,55 @@ Produced by `app.py::cmd_ask` → `generate.py::answer_from_chunks`, cache disab
 
 I didn't re-run criteria 1–4 against this change, since the edit only touches the system instruction used in generation, it doesn't touch loading, chunking, embedding, or retrieval, so those four are unaffected by construction, not by assumption.
 
+
+Real output from one run of each criterion, with the file and function that produced it. Everything is copied from the terminal and from `logs/run_log.jsonl`. Long error text is cut with `...`.
+
+Criterion 1. Screen output with a bad key, printed by `app.py::_ask_one` using the message from `runlog.py::friendly_error`:
+```
+  (best distance 0.262, cutoff 0.6)
+
+The answer service rejected the API key. Check GEMINI_API_KEY in your .env file.
+
+1 model calls this session
+```
+
+Criterion 2. Log records written by `runlog.py::log_run`, one answered and one refused. The failed record is shown under criterion 3:
+```
+{"timestamp": "2026-11-16T10:52:23+00:00", "question": "Is there an advising program for first-generation students?", "outcome": "answered", "duration_s": 0.919, "best_distance": 0.1717534140279975, "sources": ["thread_changing_major.txt", "thread_first_gen.txt", "thread_first_year_regret.txt"]}
+{"timestamp": "2026-11-16T10:54:17+00:00", "question": "How do I write a for loop in Rust?", "outcome": "refused", "duration_s": 2.431, "best_distance": 0.8348043094376183}
+```
+
+Criterion 3. Log record for a failed question with a bad key, written by `runlog.py::log_run` from the `except` branch of `app.py::_ask_one`, with the reason chosen by `runlog.py::friendly_error`:
+```
+{"timestamp": "2026-11-16T11:18:52+00:00", "question": "Who do students speak with about roommate issues?", "outcome": "model_error", "duration_s": 9.76, "reason": "bad_api_key", "error": "ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', ...}}"}
+```
+
+Criterion 4. With the budget set to 3 inside the test process, `generate.py::_check_budget` raises `QuotaGuard` on the fourth call. `runlog.py::friendly_error` turns it into the screen message, and `app.py::_ask_one` prints it. Screen output for questions 4 and 5, then the usage line:
+```
+>   (best distance 0.234, cutoff 0.6)
+
+This session has made too many requests. Stop the program, look for a loop, and start again.
+
+>   (best distance 0.262, cutoff 0.6)
+
+This session has made too many requests. Stop the program, look for a loop, and start again.
+
+> 3 model calls this session, 1659 tokens (1430 in, 229 out)
+```
+Log record for the blocked question, written by `runlog.py::log_run`:
+```
+{"timestamp": "2026-11-16T10:52:24+00:00", "question": "Who do students speak with about roommate issues?", "outcome": "model_error", "duration_s": 0.204, "reason": "session_budget", "error": "QuotaGuard: This session has made 3 requests, which is the budget set in config.py (SESSION_REQUEST_BUDGET). ..."}
+```
+
+Criterion 5. An out-of-scope question, refused by `gate.py` (the `REFUSAL` text) and printed by `app.py::_ask_one`, with no model call. The refused log record is under criterion 2:
+```
+  (best distance 0.835, cutoff 0.6)
+
+I don't have enough information about that.
+
+0 model calls this session
+```
+
 ## What's Still Broken
 
 None of my five criteria are missed as of the improvement, but two things are genuinely still open, not fully verified, and worth being honest about rather than pretending the repo is airtight.
