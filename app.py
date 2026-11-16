@@ -246,6 +246,10 @@ def _ask_one(
     show_distances=True,
     show_prompt=False,
 ):
+    if not question or not question.strip():
+        print("\nThat question is blank. Type a question after ask, for example:")
+        print('  python app.py ask "how hard is it to change majors?"\n')
+        return None
     import gate
     from generate import GROUNDING_INSTRUCTION
 
