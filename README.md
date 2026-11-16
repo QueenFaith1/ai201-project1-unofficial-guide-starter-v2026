@@ -205,6 +205,8 @@ None of my five criteria are missed as of the improvement, but two things are ge
 
 What I'd do is  write a short script that flags any chunk under some minimum length (e.g. 20 characters) and run it against the full 75, instead of relying on a manual sample. I stopped at both of these because of time, not because I think they're unimportant. A full re-run and a length-check script are both quick, mechanical next steps, not open research problems.
 
+**Target I would tighten:** Criterion 4, the session budget. I tested it with the limit set to 3, not the real 300, and the guard counts requests, not tokens. Running out of tokens could make everything else unstable, and my criterion doesn't check that. I'd tighten it in two ways. First, test the real limit: 300 requests allowed, and the 301st blocked. Second, add a token cap based on my measured cost of about 540 tokens per question, and test that it stops the session before the service runs out.
+
 ## What I'd Do Differently
 
 If I were writing my five criteria again knowing what I know now, I'd rewrite **criterion 5**. My original version, "the answer explains both
