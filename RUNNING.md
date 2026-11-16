@@ -2,6 +2,27 @@
 
 Everything about how the starter works and how to use it.
 
+## Capstone: start from a fresh clone (Windows PowerShell)
+
+```
+git clone https://github.com/QueenFaith1/ai201-project1-unofficial-guide-starter-v2026
+cd ai201-project1-unofficial-guide-starter-v2026
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+copy .env.example .env
+```
+
+Open `.env` and paste your Gemini key after `GEMINI_API_KEY=`. Then check the setup and build the index (the first run downloads an embedding model of about 80 MB):
+
+```
+python test.py
+python app.py index
+python app.py ask "How hard is it to change majors in second year?"
+```
+
+Every question, including failed ones, is recorded in `logs/run_log.jsonl`. If a plain-language error appears, the raw error is in that record's `error` field. To measure cost over ten questions with the cache off, run `python measure_cost.py`.
+
 ---
 
 ## Before your first class
