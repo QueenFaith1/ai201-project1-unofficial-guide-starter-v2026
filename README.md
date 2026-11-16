@@ -231,3 +231,27 @@ Unofficial Guide (project 1). New: failure handling and a structured run log.
 I picked B, harden against failure. Right now, when the model call fails, the user sees a raw error from the provider and nothing gets saved. When I'm done, the user will see a short, clear message instead, and every run, including the ones that fail, will be saved to a structured log with what was asked, what happened, and how long it took.
 
 Out of scope: I'm not adding automatic retries, I'm not changing how answers are found or written, and I'm not hosting it online. It runs on my own computer.
+
+
+**Running It:** Full steps are in `RUNNING.md`. From a fresh clone: create a virtual environment, `pip install -r requirements.txt`, copy `.env.example` to `.env` and add a Gemini key, then run `python test.py`, `python app.py index` and `python app.py ask "your question"`. I tested this in a new folder cloned from GitHub. `python test.py` passed 10 of 10 checks on Python 3.12.0, the index built 75 chunks in 17.6 seconds, and the first question was answered with its sources.
+
+**Instrumentation:** Every question writes one JSON record to `logs/run_log.jsonl`, including failures. Each record has `timestamp`, `question`, `outcome` (`answered`, `refused` or `model_error`) and `duration_s`. Answered and refused records add `best_distance`, answered ones also add `sources`, and failed ones add `reason` and the raw `error`. The user never sees the raw error. They see a plain message, and the detail goes to the log. Below are 12 real entries, trimmed to the main fields. The full file is committed in `logs/run_log.jsonl`.
+
+| # | outcome | seconds | best_distance | reason | question |
+|---|---|---|---|---|---|
+| 1 | model_error | 8.255 | | bad_api_key | How hard is it to change majors in second year? |
+| 2 | model_error | 7.489 | | bad_api_key | How hard is it to change majors in second year? |
+| 3 | answered | 7.192 | 0.230 | | How hard is it to change majors in second year? |
+| 4 | answered | 1.040 | 0.230 | | What should students do if a teammate disappears from a group project? |
+| 5 | answered | 1.245 | 0.172 | | Is there an advising program for first-generation students? |
+| 6 | answered | 1.315 | 0.234 | | How many times can students change their meal plan tier and by when? |
+| 7 | answered | 0.872 | 0.262 | | Who do students speak with about roommate issues? |
+| 8 | answered | 1.094 | 0.115 | | Is a bike worth it for a 20 minute walk commute? |
+| 9 | answered | 0.970 | 0.187 | | How much laptop do I need for CS courses? |
+| 10 | answered | 0.825 | 0.268 | | Is it worth getting a parking permit? |
+| 11 | answered | 0.904 | 0.321 | | Does fixing my sleep schedule actually matter? |
+| 12 | answered | 1.303 | 0.472 | | What should first-generation students know that nobody tells them? |
+
+Entries 1 and 2 are the failed runs. I put a fake API key in `.env` on purpose to test the failure path. The screen showed "The answer service rejected the API key. Check GEMINI_API_KEY in your .env file." and the raw `ClientError: 400 INVALID_ARGUMENT` text went only to the log.
+
+**What It Costs:** I measured ten in-corpus questions with the cache turned off, using `measure_cost.py`. Each answered question made 1 model call. The average was 538.9 tokens per question (about 480 in and 59 out) and 2.05 seconds. The first question took 10.84 seconds because of one-time startup, and the other nine took about 1 second each. At 100 questions a day that is about 53,900 tokens a day. A refused question makes no model call, so it costs 0 tokens. These numbers come from the token counts the service reports, not from a price list, and the measurement is saved in `results/cost_measurement.txt`.
