@@ -1,0 +1,67 @@
+CAPSTONE TRIALS  (each criterion run 3 times)
+Files checked: app.py::_ask_one, runlog.py::friendly_error and log_run,
+generate.py::_check_budget, gate.py (REFUSAL), logs/run_log.jsonl
+
+Criteria 1 and 3, trial 1 (bad key, 5 questions):
+    ok  screen   | ok  log record | How hard is it to change majors in second year?
+    ok  screen   | ok  log record | What should students do if a teammate disappears f
+    ok  screen   | ok  log record | Is there an advising program for first-generation 
+    ok  screen   | ok  log record | How many times can students change their meal plan
+    ok  screen   | ok  log record | Who do students speak with about roommate issues?
+    screen message correct: 5 of 5 | log record correct: 5 of 5
+Criteria 1 and 3, trial 2 (bad key, 5 questions):
+    ok  screen   | ok  log record | How hard is it to change majors in second year?
+    ok  screen   | ok  log record | What should students do if a teammate disappears f
+    ok  screen   | ok  log record | Is there an advising program for first-generation 
+    ok  screen   | ok  log record | How many times can students change their meal plan
+    ok  screen   | ok  log record | Who do students speak with about roommate issues?
+    screen message correct: 5 of 5 | log record correct: 5 of 5
+Criteria 1 and 3, trial 3 (bad key, 5 questions):
+    ok  screen   | ok  log record | How hard is it to change majors in second year?
+    ok  screen   | ok  log record | What should students do if a teammate disappears f
+    ok  screen   | ok  log record | Is there an advising program for first-generation 
+    ok  screen   | ok  log record | How many times can students change their meal plan
+    ok  screen   | ok  log record | Who do students speak with about roommate issues?
+    screen message correct: 5 of 5 | log record correct: 5 of 5
+Criterion 2, trial 1 (10 questions, 10 records):
+    new log lines: 10 (want 10) | complete records: 10
+    outcomes: {'answered': 4, 'refused': 5, 'model_error': 1}
+Criterion 2, trial 2 (10 questions, 10 records):
+    new log lines: 10 (want 10) | complete records: 10
+    outcomes: {'answered': 4, 'refused': 5, 'model_error': 1}
+Criterion 2, trial 3 (10 questions, 10 records):
+    new log lines: 10 (want 10) | complete records: 10
+    outcomes: {'answered': 4, 'refused': 5, 'model_error': 1}
+Criterion 4, trial 1 (budget set to 3 inside the test process):
+    blocked questions: 2 (want 2) | model calls in usage line: 3 (want 3)
+Criterion 4, trial 2 (budget set to 3 inside the test process):
+    blocked questions: 2 (want 2) | model calls in usage line: 3 (want 3)
+Criterion 4, trial 3 (budget set to 3 inside the test process):
+    blocked questions: 2 (want 2) | model calls in usage line: 3 (want 3)
+Criterion 5, trial 1 (5 out-of-scope questions):
+    ok  | best_distance 0.8934573922897918 | What is the capital of Mongolia?
+    ok  | best_distance 0.8963917225643488 | How do I change the oil in a diesel engine?
+    ok  | best_distance 0.8933963932249459 | Who won the 1994 World Cup?
+    ok  | best_distance 0.8074514706937834 | What is the recommended dosage of ibuprofen for a heada
+    ok  | best_distance 0.8348043094376183 | How do I write a for loop in Rust?
+Criterion 5, trial 2 (5 out-of-scope questions):
+    ok  | best_distance 0.8934573922897918 | What is the capital of Mongolia?
+    ok  | best_distance 0.8963917225643488 | How do I change the oil in a diesel engine?
+    ok  | best_distance 0.8933963932249459 | Who won the 1994 World Cup?
+    ok  | best_distance 0.8074514706937834 | What is the recommended dosage of ibuprofen for a heada
+    ok  | best_distance 0.8348043094376183 | How do I write a for loop in Rust?
+Criterion 5, trial 3 (5 out-of-scope questions):
+    ok  | best_distance 0.8934573922897918 | What is the capital of Mongolia?
+    ok  | best_distance 0.8963917225643488 | How do I change the oil in a diesel engine?
+    ok  | best_distance 0.8933963932249459 | Who won the 1994 World Cup?
+    ok  | best_distance 0.8074514706937834 | What is the recommended dosage of ibuprofen for a heada
+    ok  | best_distance 0.8348043094376183 | How do I write a for loop in Rust?
+
+============================================================
+SUMMARY (three trials each)
+============================================================
+1 bad key, plain message      : 5/5, 5/5, 5/5   target 5 of 5
+2 ten questions, ten records  : [True, True, True]   target all True
+3 failure logged with cause   : 5/5, 5/5, 5/5   target 5 of 5
+4 budget stops requests       : [True, True, True]   target all True
+5 out-of-scope refused        : 5/5, 5/5, 5/5   target 5 of 5

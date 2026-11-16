@@ -255,3 +255,49 @@ Out of scope: I'm not adding automatic retries, I'm not changing how answers are
 Entries 1 and 2 are the failed runs. I put a fake API key in `.env` on purpose to test the failure path. The screen showed "The answer service rejected the API key. Check GEMINI_API_KEY in your .env file." and the raw `ClientError: 400 INVALID_ARGUMENT` text went only to the log.
 
 **What It Costs:** I measured ten in-corpus questions with the cache turned off, using `measure_cost.py`. Each answered question made 1 model call. The average was 538.9 tokens per question (about 480 in and 59 out) and 2.05 seconds. The first question took 10.84 seconds because of one-time startup, and the other nine took about 1 second each. At 100 questions a day that is about 53,900 tokens a day. A refused question makes no model call, so it costs 0 tokens. These numbers come from the token counts the service reports, not from a price list, and the measurement is saved in `results/cost_measurement.txt`.
+
+
+**Run Log and Verdicts:** Each criterion was run three times with `capstone_trials.py`, which runs the real app as a separate process for every question. The full output is in `results/capstone_trials.txt`.
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Bad key shows a plain message, not the raw error | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every question leaves one complete log record | 10 of 10 records | 10/10 | 10/10 | 10/10 | MET |
+| 3. A failed question is logged with the real cause | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. The session budget stops runaway requests | questions 4 and 5 blocked, 3 model calls | yes | yes | yes | MET |
+| 5. Out-of-scope questions are refused, logged, free | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+How I decided: every run hit its target exactly, so I called each one MET. Nothing was close to the line. The refusal distances were all 0.80 or higher against a cutoff of 0.6. There was no miss to diagnose, so there are no diagnoses. The results were the same in all three trials because the failures I tested are deterministic. This is evidence the criteria hold, but it also means my criteria did not find a problem. Limits of these tests:
+- Criteria 1 and 3 were checked on the same 15 runs.
+- Criterion 4 sets the budget to 3 inside the test process instead of editing `config.py`, so the real limit of 300 was not exercised.
+- The cache was off for these trials. With it on, a repeated question can be answered from the cache even with a bad key.
+- Only the bad-key failure was tested. Network and rate-limit failures were not.
+
+**The Improvement:** I made one change, to `app.py::_ask_one`. Before it, a question that was only spaces was searched, refused with "I don't have enough information about that," and written to the log as a real question.
+
+Before:
+```
+python app.py ask "   "
+  (best distance 0.769, cutoff 0.6)
+
+I don't have enough information about that.
+
+{"timestamp": "2026-11-16T10:29:32+00:00", "question": "   ", "outcome": "refused", "duration_s": 1.254, "best_distance": 0.7691474769632034}
+```
+
+After the change, a blank question prints "That question is blank" with an example, makes no search, and adds nothing to the log (the last log line stayed the 10:29 record):
+```
+python app.py ask "   "
+
+That question is blank. Type a question after ask, for example:
+  python app.py ask "how hard is it to change majors?"
+```
+
+I then re-ran all five criteria and got the same results (`results/capstone_trials_before.txt` and `results/capstone_trials_after.txt`), so the change did not break anything. This was a weakness I found in my baseline probing, not a missed criterion.
+
+**What's Still Broken:** `main()` in `app.py` still prints raw exception text for the `index` and `retrieve` commands, so a failure there is not friendly or logged. Only the bad-key path was tested. I never simulated a network timeout or a rate-limit failure, so those mappings in `friendly_error` are unproven. The budget test patches the limit in memory instead of testing the real value of 300. Next, I would simulate a timeout and a rate-limit error to test the other mappings in `friendly_error`. I would also route `main()` through `friendly_error` so every command fails the same plain way.
+
+**How I Used AI:** I used Claude throughout the capstone.
+- *Criteria:* I wrote  my five criteria with my own ideas: a plain message on a bad key, one log entry per question, failures logged, a blocked runaway session, and refusals. 
+- *Moment 1:* My trials first stopped with "the bad key was not applied." I asked claude for help and it  worked out that the cache was serving saved answers without calling the service, and the fix was one line (turn the cache off for those runs).
+- *Moment 2:* Claude first told me the session budget "prints a warning once." When I pasted the code, it showed the guard raises an error every time.
