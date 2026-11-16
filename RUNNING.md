@@ -5,6 +5,8 @@ Everything about how the starter works and how to use it.
 ## Capstone: start from a fresh clone (Windows PowerShell)
 
 ```
+**What the environment needs:** Python 3.12 (tested on 3.12.0), the pinned packages in `requirements.txt`, and an embedding model of about 80 MB that downloads on the first run. A Gemini API key goes in `.env`.
+
 git clone https://github.com/QueenFaith1/ai201-project1-unofficial-guide-starter-v2026
 cd ai201-project1-unofficial-guide-starter-v2026
 python -m venv .venv

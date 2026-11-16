@@ -256,6 +256,8 @@ Entries 1 and 2 are the failed runs. I put a fake API key in `.env` on purpose t
 
 **What It Costs:** I measured ten in-corpus questions with the cache turned off, using `measure_cost.py`. Each answered question made 1 model call. The average was 538.9 tokens per question (about 480 in and 59 out) and 2.05 seconds. The first question took 10.84 seconds because of one-time startup, and the other nine took about 1 second each. At 100 questions a day that is about 53,900 tokens a day. A refused question makes no model call, so it costs 0 tokens. These numbers come from the token counts the service reports, not from a price list, and the measurement is saved in `results/cost_measurement.txt`.
 
+**Arithmetic for a hundred people a day**, assuming one question each: 538.9 tokens × 100 = 53,890 tokens a day. Over 30 days that is 53,890 × 30 = 1,616,700 tokens. I report tokens, not dollars, because tokens are what I measured.
+
 
 **Run Log and Verdicts:** Each criterion was run three times with `capstone_trials.py`, which runs the real app as a separate process for every question. The full output is in `results/capstone_trials.txt`.
 
@@ -300,4 +302,16 @@ I then re-ran all five criteria and got the same results (`results/capstone_tria
 **How I Used AI:** I used Claude throughout the capstone.
 - *Criteria:* I wrote  my five criteria with my own ideas: a plain message on a bad key, one log entry per question, failures logged, a blocked runaway session, and refusals. 
 - *Moment 1:* My trials first stopped with "the bad key was not applied." I asked claude for help and it  worked out that the cache was serving saved answers without calling the service, and the fix was one line (turn the cache off for those runs).
-- *Moment 2:* Claude first told me the session budget "prints a warning once." When I pasted the code, it showed the guard raises an error every time.
+- *Moment 2:* Claude first told me the session budget "prints a warning once." When I pasted the code, it showed the guard raises an error every time. 
+
+After the change (same format as the table above, from `results/capstone_trials_after.txt`):
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Bad key shows a plain message, not the raw error | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every question leaves one complete log record | 10 of 10 records | 10/10 | 10/10 | 10/10 | MET |
+| 3. A failed question is logged with the real cause | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. The session budget stops runaway requests | questions 4 and 5 blocked, 3 model calls | yes | yes | yes | MET |
+| 5. Out-of-scope questions are refused, logged, free | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+Before and after were identical on all five criteria. The blank-question fix neither helped nor hurt them, because none of them covered blank input. What it improved was a weakness my criteria did not measure.
