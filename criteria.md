@@ -109,6 +109,38 @@ I picked 2 of 3 because my corpus is full of threads where people disagree (like
 > tested as written.
 ---
 
+## Capstone criteria
+
+### 1. A bad key shows a plain message, never the raw error
+
+With an invalid `GEMINI_API_KEY` in `.env`, I ask an in-corpus question with `python app.py ask "..."`. The screen shows "The answer service rejected the API key. Check GEMINI_API_KEY in your .env file." and does not contain the text `ClientError` or `INVALID_ARGUMENT`, in 5 of 5 tries.
+
+**Why this target:** A bad key fails the same way every time, so there is no randomness to allow for. The raw text is supposed to go only to the log, so even one leak means the fix doesn't work.
+
+### 2. Every question leaves exactly one complete log record
+
+I note the line count of `logs/run_log.jsonl`, ask 10 questions (a mix of in-corpus, out-of-scope, and one with a bad key), and count again. The file has exactly 10 new lines, and each has `timestamp`, `question`, `outcome` and `duration_s`. Answered and refused records also have `best_distance`, and `model_error` records have `reason` and `error`. I check by loading each line and comparing its keys. Target: 10 of 10 records.
+
+**Why this target:** The log is the only place I can find out why a question failed. A missing or half-empty record defeats the point, so 9 of 10 would not be good enough.
+
+### 3. A failed question is logged with the real cause
+
+With an invalid key, I ask 5 in-corpus questions. Each one adds a log record with `outcome` set to `model_error`, `reason` set to `bad_api_key`, and a non-empty `error` that contains "API key not valid", in 5 of 5 tries.
+
+**Why this target:** The screen hides the raw error, so the log has to keep it. If the record is missing or the reason is wrong, the failure can't be diagnosed afterward.
+
+### 4. The session budget stops runaway requests
+
+In `config.py` I temporarily set `SESSION_REQUEST_BUDGET = 3`, turn the cache off with `$env:AI201_CACHE="0"`, and run `python app.py ask` in interactive mode. I ask 5 in-corpus questions in a row. Questions 4 and 5 show "This session has made too many requests. Stop the program, look for a loop, and start again." and the usage line at exit says 3 model calls, in 3 of 3 runs. I set the budget back to 300 afterward.
+
+**Why this target:** The real budget is 300 requests, and testing that would burn a lot of calls. Setting it to 3 tests the same check cheaply. The guard is a counter, so it should behave the same every run.
+
+### 5. Out-of-scope questions are refused, logged, and cost nothing
+
+I run the 5 `OUT_OF_SCOPE` questions from `questions.py` through `python app.py ask`. Each one prints exactly "I don't have enough information about that.", adds a log record with `outcome` set to `refused` and `best_distance` greater than 0.6, and the usage line says 0 model calls, in 5 of 5 questions.
+
+**Why this target:** A refused question never reaches the model, so a wrong answer here means the gate failed. An earlier criterion allowed 4 of 5, and this time I want to see whether all 5 hold when the log is also checked.
+
 <!-- ─────────────────────────────────────────────────────────────────────────
      UNIT 2 — read this before you change anything above.
 
